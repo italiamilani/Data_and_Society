@@ -1,0 +1,332 @@
+---
+title: "Final Project Graphs for GitHub"
+---
+
+#Setting Libraries and Uploading the Data
+```{r}
+setwd("/Users/italiamilani/Downloads/dida")
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggthemes)
+library(sf)
+library(ggplot2)
+library(rnaturalearth)
+
+data <- read.csv("World Food Insecurity Data.csv")
+data <- data %>%
+  select(-c("indicator_name", "indicator_code")) %>%
+  rename(country = country_name, gdp = gdp_per_capita_usd_2021_2022, code = country_code)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world <- world %>%
+  select(c("continent", "iso_a3", "name", "lastcensus", "pop_est", "gdp_md_est", "economy", "income_grp", "region_un", 
+"region_wb", "subregion", "geometry")) %>%
+  filter(region_wb != "Antarctica")
+
+world_data <- merge(world, data, by.x = "iso_a3", by.y = "code", all.x = TRUE)
+```
+
+#Separating Data Into Regions
+```{r}
+#CENTRAL ASIA####
+central_asia <- data %>% filter(region == "Central Asia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Asia")
+
+long_central_asia <- central_asia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Central Asia")
+
+#EASTERN ASIA####
+eastern_asia <- data %>% filter(region == "Eastern Asia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Asia")
+
+long_eastern_asia <- eastern_asia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Eastern Asia")
+
+#WESTERN ASIA####
+western_asia <- data %>% filter(region == "Western Asia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Asia")
+
+long_western_asia <- western_asia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Western Asia")
+
+#SOUTHERN ASIA####
+southern_asia <- data %>% filter(region == "Southern Asia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Asia")
+
+long_southern_asia <- southern_asia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Southern Asia")
+
+#CENTRAL AFRICA####
+central_africa <- data %>% filter(region == "Middle Africa") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Africa")
+
+long_central_africa <- central_africa %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Central Africa")
+
+#EASTERN AFRICA####
+eastern_africa <- data %>% filter(region == "Eastern Africa") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Africa")
+
+long_eastern_africa <- eastern_africa %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Eastern Africa")
+
+#WESTERN AFRICA####
+western_africa <- data %>% filter(region == "Western Africa") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Africa")
+
+long_western_africa <- western_africa %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Western Africa")
+
+#SOUTHERN AFRICA####
+southern_africa <- data %>% filter(region == "Southern Africa") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Africa")
+
+long_southern_africa <- southern_africa %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Southern Africa")
+
+#NORTHERN AFRICA####
+northern_africa <- data %>% filter(region == "Northern Africa") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Africa")
+
+long_northern_africa <- northern_africa %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Northern Africa")
+
+#CENTRAL AMERICA####
+central_america <- data %>% filter(region == "Central America") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "North America")
+
+long_central_america <- central_america %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Central America")
+
+#NORTHERN AMERICA####
+northern_america <- data %>% filter(region == "Northern America") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "North America")
+
+long_northern_america <- northern_america %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Northern America")
+
+#SOUTH AMERICA####
+south_america <- data %>% filter(region == "South America") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "South America")
+
+long_south_america <- south_america %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "South America")
+
+#SOUTHERN EUROPE####
+southern_europe <- data %>% filter(region == "Southern Europe") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Europe")
+
+long_southern_europe <- southern_europe %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Southern Europe")
+
+#WESTERN EUROPE####
+western_europe <- data %>% filter(region == "Western Europe") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Europe")
+
+long_western_europe <- western_europe %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Western Europe")
+
+#EASTERN EUROPE####
+eastern_europe <- data %>% filter(region == "Eastern Europe") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Europe")
+
+long_eastern_europe <- eastern_europe %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Eastern Europe")
+
+#NORTHERN EUROPE####
+northern_europe <- data %>% filter(region == "Northern Europe") %>% 
+  select(c(country,  X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Europe")
+
+long_northern_europe <- northern_europe %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Northern Europe")
+
+#AUSTRALIA####
+australia <- data %>% filter(region == "Australia and New Zealand") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Oceania")
+
+long_australia <- australia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Australia")
+
+#CARIBBEAN####
+caribbean <- data %>% filter(region == "Caribbean") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "North America")
+
+long_caribbean <- caribbean %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Caribbean")
+
+#POLYNESIA####
+polynesia <- data %>% filter(region == "Polynesia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Oceania")
+
+long_polynesia <- polynesia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Polynesia")
+
+#MELANESIA####
+melanesia <- data %>% filter(region == "Melanesia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Oceania")
+
+long_melanesia <- melanesia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Melanesia")
+
+#MICRONESIA####
+micronesia <- data %>% filter(region == "Southeastern Asia") %>% 
+  select(c(country, X2015, X2016, X2017, X2018, X2019, X2020, X2021, code)) %>%
+  mutate(continent = "Oceania")
+
+long_micronesia <- micronesia %>% 
+  pivot_longer(-c(country, code, continent), names_to = "year", values_to = "percent_food_insecure") %>%
+  mutate(region = "Southeastern Asia")
+```
+
+#Setting Color Palettes
+```{r}
+
+```
+
+#Graphs
+
+Countries by Food Insecurity 2015 vs 2021 (map)
+```{r}
+ggplot() +
+  geom_sf(data = world_data, aes(fill = X2015), color = "white") +
+  scale_fill_gradient(low = "#BED1EF", high = "#650404", na.value = "#A6A6A8", limits = c(0, 64)) +
+  theme_void() + 
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Countries by Food Insecurity, 2015",
+       fill = "Food Insecurity (%)",
+       caption = "Gray values represent na values")
+ggplot() +
+  geom_sf(data = world_data, aes(fill = X2021), color = "white") +
+  scale_fill_gradient(low = "#BED1EF", high = "#650404", na.value = "#A6A6A8", limits = c(0, 64)) +
+  theme_void()+
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Countries by Food Insecurity, 2021",
+       fill = "Food Insecurity (%)",
+       caption = "Gray values represent na values")
+```
+
+GDP Per Capita USA 2021 - 2022 (map)
+```{r}
+ggplot() +
+  geom_sf(data = world_data, aes(fill = gdp), color = "white") +
+  scale_fill_gradient(low = "#BED1EF", high = "#650404", na.value = "#A6A6A8") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "GDP per Capita USD, 2021 - 2022",
+       fill = "GDP", 
+       caption = "Gray values represent na values")
+```
+
+Mean Percent of Food Insecurity by Region (map)
+```{r}
+long_region_data <- data %>%
+  pivot_longer(-c(country, region, code, gdp), names_to = "year", values_to = "percent_food_insecure")
+long_region_data <- merge(world, long_region_data, by.x = "iso_a3", by.y = "code", all.x = TRUE)
+mean_region_data <- long_region_data %>%
+  group_by(subregion) %>%
+  reframe(mean_insecure = mean(percent_food_insecure, na.rm = T), mean_gdp = mean(gdp, na.rm = T)) 
+mean_insecure_by_region <- merge(long_region_data, mean_region_data, by = "subregion", all.x = TRUE)
+
+ggplot(data = mean_insecure_by_region) +
+  geom_sf(aes(fill = mean_insecure), color = NA) +
+  scale_fill_gradient(low = "#98a69e" , high = "#073763") +
+  theme_void() +
+  labs(title = "Mean Percent of Food Insecurity by Region (2015-2021)",
+       fill = "Food Insecurity (%)") +
+  theme(plot.title = element_text(hjust = 0.5), 
+    legend.position="bottom")
+
+ggplot(data = mean_insecure_by_region) +
+  geom_sf(aes(fill = mean_gdp), color = NA) +
+  scale_fill_gradient(low = "#98a69e" , high = "#073763") +
+  theme_void() +
+  labs(title = "Mean GDP Per Capita by Region (2015-2021)",
+       fill = "GDP",) +
+  theme(plot.title = element_text(hjust = 0.5), 
+    legend.position="bottom")
+```
+
+Global Food Insecurity By Continent (line)
+```{r}
+palette_continents <- c("#AF5B5B", "#F79D65", "#F4E285", "#90BE6D", "#6987C9", "#B58DB6")
+
+databycontinent <- rbind(central_asia, eastern_asia, western_asia, southern_asia, central_africa, eastern_africa, western_africa, southern_africa, northern_africa, northern_america, central_america, south_america, southern_europe, western_europe, eastern_europe, northern_europe, australia, caribbean, polynesia, melanesia, micronesia)
+
+continent_data <- databycontinent %>%
+  group_by(continent) %>%
+  summarise("2015" = mean(X2015, na.rm = T), 
+    "2016" = mean(X2016, na.rm = T), 
+    "2017" = mean(X2017, na.rm = T), 
+    "2018" = mean(X2018, na.rm = T), 
+    "2019" = mean(X2019, na.rm = T), 
+    "2020" = mean(X2020, na.rm = T), 
+    "2021" = mean(X2021, na.rm = T))
+
+continent_data_long <- continent_data %>%
+  pivot_longer(-continent, names_to = "year", values_to = "percent_food_insecure")
+
+ggplot(continent_data_long, aes(x = year, y = percent_food_insecure, group = continent, color = continent)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = palette_continents) +
+  theme_linedraw() +
+  labs(x = "Year", y = "Food Insecurity (%)",
+       title = "Global Food Insecurity Trends by Continent (2015 - 2021)",
+       color = "Continent")
+```
+
+Food Insecurity VS GDP Per Capita (point, smooth)
+```{r}
+remerged_data <- merge(data, databycontinent, by = "code")
+
+ggplot(remerged_data) +
+  geom_point(aes(x = gdp, y = X2021.x, color = continent)) +
+  geom_smooth(method = "lm", aes(x = gdp, y = X2021.x), color = "black", size = 0.5) +
+  scale_color_manual(values = palette_continents) +
+  theme_linedraw() +
+  labs(x = "GDP Per Capita", y = "Food Insecurity (%)",
+       title = "Food Insecurity VS GDP Per Capita (2021 - 2022)",
+       color = "Continent")
+```
