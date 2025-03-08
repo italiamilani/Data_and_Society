@@ -1,0 +1,116 @@
+---
+title: "Italia Milani : Data and Society Midterm"
+output: html_notebook
+---
+
+```{r}
+#setting up working directory, loading in the data set, loading in libraries, and creating color palettes
+setwd("~/Downloads")
+occupation <- read.csv("occupation_gender_race.csv", stringsAsFactors = F, fileEncoding="UTF-8-BOM")
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+palette1 <- c("#AFC2D5", "#3A3042", "#5DA271")
+palette2 <- c("#A3D9FF", "#7E6B8F", "#96E6B3", "#DA3E52")
+
+#fixing the occupation descriptions to not include white space (citation 1)
+occupation <- occupation %>%
+  mutate_if(is.character, trimws)
+```
+
+Summary Table for Total and Computer_All Categories
+```{r}
+#narrowing the data set to just include Total and All Computer Categories
+total_and_computer_all <- occupation %>%
+  filter(job_type %in% c("total", "computer_all"))
+
+#summary table with the average total workers and percent minority workers
+total_and_computer_all %>%
+  group_by(job_type) %>%
+  summarise(average_total_workers = mean(All),
+            average_percent_women = mean(Women),
+            average_percent_black = mean(Black),
+            average_percent_asian = mean(Asian),
+            average_percent_hispanic = mean(Hispanic.Latino))
+```
+
+Summary Table for Computer Programmers and Operations Research Analysts Professions
+```{r}
+#narrowing the data set to just include the two professions i wanted
+ProgrammersVsAnalyists <- occupation %>%
+  filter(description %in% c("Computer programmers", "Operations research analysts"))
+
+#summary table with the minimum and maximum percent of minorities throughout the years in each profession
+ProgrammersVsAnalyists %>%
+  group_by(description) %>%
+  summarise(average_total_workers = mean(All),
+            average_percent_women = mean(Women),
+            min_percent_black = min(Black),
+            max_percent_black = max(Black),
+            min_percent_asian = min(Asian),
+            max_percent_asian = max(Asian), 
+            min_percent_hispanic = min(Hispanic.Latino),
+            max_percent_hispanic = max(Hispanic.Latino))
+```
+
+
+Graph 1 : Percentage of Workers by Race in Computer Occupations
+```{r}
+computer_workers_by_race <- occupation %>%
+  filter(job_type == "computer_all") 
+
+#changing the format of the table so its easier to compare workers by race (citation 2 & 3)
+computer_workers_by_race <- pivot_longer(computer_workers_by_race, cols = c(Black, Asian, Hispanic.Latino), names_to = "Race", values_to = "Count")
+
+#creating a grouped bar chart and changing the limits on y (citation 4)
+ggplot(computer_workers_by_race, aes(x = year, y = Count, fill = Race)) +
+  geom_bar(stat = "Identity", position = "dodge") +
+  scale_fill_manual(values = palette1) +
+  theme_bw()+
+  ylim(0, 30)+
+  labs(y = "Percentage of Workers", x = "Year",
+       title = "Percentage of Workers by Race in Computer Occupations")
+```
+
+Graph 2 : Yearly Trends on the Percentage of Women Across Occupations
+```{r}
+percentage_of_women <- occupation %>%
+  filter(job_type == "computer") %>%
+  filter(Women > 0)
+
+ggplot(percentage_of_women, aes(x = Women, y = description, color = year)) +
+  geom_point()+
+  theme_clean()+
+  scale_color_gradient(low = "#F49FBC", high = "#805D93") +
+  labs(y = "Occupation", x = "Percent of Women",
+       title = "Yearly Trends on the Percentage of Women Across Occupations",
+       color = "Year")+
+  theme(plot.title = element_text(hjust = 0.7))
+```
+
+Graph 3 : a
+```{r}
+yearly_trends <- occupation %>%
+  filter(description %in% c("Computer programmers", "Network and computer systems administrators", "Computer support specialists", "Operations research analysts"))
+
+ggplot(yearly_trends, (aes(x = year, y = All, group = description, color = description))) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = palette2) +
+  theme_bw() +
+  labs(y = "Number of Workers", x = "Year",
+       title = "Occupational Workforce Trends Over Time",
+       color = "Occupation")
+```
+
+#Key Findings
+We seek to analyze the total, professional, and computer jobs in terms of their workforce and percentage of minority representation by using this data set. The first summary table shows that computer-related fields have a lower percentage of Black, Hispanic, and Women representation when compared to the total jobs. Contrarily, these fields have a notably higher percentage of Asian representation. The second summary table shows disparities within the fields of computer programmers and operations research analysts. For instance, operations research analysts have a higher percentage of women and Black individuals when compared to computer programmers. In contrast, computer programmers have a higher percentage of Asian and Hispanic individuals. 
+
+According to the "Percentage of Workers by Race in Computer Occupations" graph, there is a upwards trend in the percentage of minority workers within the computer field over time. Most significantly, the percentage of Asian workers has increased almost 10% compared to the less than 5% growth with Black and Hispanic workers. The "Yearly Trends on the Percentage of Women Across Occupations" graph shows that most occupations are experiencing a decline in the percentage of women. Lastly, the "Computer Programmers, Network and Computer Systems Administrators, Computer Support Specialists, and Operations Research Analysts Occupations Workforce Trends Over Time" graph provides insights into the employment trends for these occupations. Computer programmers have experienced a decline in their total workers over the years. On the other hand, computer support specialists saw a significant increase in their workers. Network and computer systems administators and operations research analysits saw a small increase in their workforce. Although, network administrators faced a slight decrease between 2010 and 2015. These trends show the trajectories of different computer occupations over time.
+
+
+#Work Cited
+citation 1: https://stackoverflow.com/questions/20760547/removing-whitespace-from-a-whole-data-frame-in-r
+citation 2: https://stackoverflow.com/questions/72449952/making-a-grouped-bar-chart-in-r
+citation 3: https://tidyr.tidyverse.org/reference/pivot_longer.html
+citation 4: http://www.sthda.com/english/wiki/ggplot2-axis-scales-and-transformations
